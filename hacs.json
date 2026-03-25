@@ -1,0 +1,6 @@
+{
+    "name": "Open Harbor Sender",
+    "description": "Publica los datos de tu puerto en Open Harbor.",
+    "render_readme": true,
+    "country": "ES"
+}
