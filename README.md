@@ -1,4 +1,5 @@
 
+<img width="1207" height="512" alt="logo@2" src="https://github.com/user-attachments/assets/fb4aab0b-a239-4b89-b305-fcb233fd2f13" />
 
 # Open Harbor Server — Integración para Home Assistant
 
