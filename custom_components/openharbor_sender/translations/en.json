@@ -1,0 +1,91 @@
+{
+    "config": {
+        "step": {
+            "user": {
+                "title": "Port credentials",
+                "data": {
+                    "port_id": "Select the port",
+                    "github_token": "GitHub Token"
+                },
+                "data_description": {
+                    "port_id": "Select the port you want to receive data from",
+                    "github_token": "Fine-grained token with read and write permissions on portwatch-data"
+                }
+            },
+            "sensor_map": {
+                "title": "Sensor mapping — {port_name}",
+                "description": "Link each port sensor to an entity in your Home Assistant",
+                "data": {
+                    "air_temperature": "Air temperature",
+                    "humidity": "Humidity",
+                    "wind_speed": "Wind speed",
+                    "wind_direction": "Wind direction",
+                    "wave_height": "Wave height",
+                    "water_temperature": "Water temperature",
+                    "berths_available": "Available berths",
+                    "port_status": "Port status"
+                },
+                "data_description": {
+                    "air_temperature": "Ambient temperature sensor (°C)",
+                    "humidity": "Relative humidity sensor (%)",
+                    "wind_speed": "Wind speed sensor (km/h)",
+                    "wind_direction": "Wind direction sensor (°)",
+                    "wave_height": "Wave height sensor (m)",
+                    "water_temperature": "Water temperature sensor (°C)",
+                    "berths_available": "Number of available berths",
+                    "port_status": "Port operational status (open/closed)"
+                }
+            },
+            "cadence": {
+                "title": "Update frequency",
+                "data": {
+                    "update_interval": "Send frequency"
+                }
+            }
+        },
+        "error": {
+            "invalid_token": "Invalid token or insufficient permissions",
+            "repo_not_found": "Data repository not found",
+            "token_no_write": "Token does not have write permissions",
+            "port_not_found": "Port not found in the data repository",
+            "cannot_connect": "Could not connect to GitHub"
+        },
+        "abort": {
+            "already_configured": "This port is already configured"
+        }
+    },
+    "options": {
+        "step": {
+            "init": {
+                "title": "Sensor remapping — {port_name}",
+                "description": "Reassign Home Assistant entities to each port sensor",
+                "data": {
+                    "air_temperature": "Air temperature",
+                    "humidity": "Humidity",
+                    "wind_speed": "Wind speed",
+                    "wind_direction": "Wind direction",
+                    "wave_height": "Wave height",
+                    "water_temperature": "Water temperature",
+                    "berths_available": "Available berths",
+                    "port_status": "Port status"
+                },
+                "data_description": {
+                    "air_temperature": "Ambient temperature sensor (°C)",
+                    "humidity": "Relative humidity sensor (%)",
+                    "wind_speed": "Wind speed sensor (km/h)",
+                    "wind_direction": "Wind direction sensor (°)",
+                    "wave_height": "Wave height sensor (m)",
+                    "water_temperature": "Water temperature sensor (°C)",
+                    "berths_available": "Number of available berths",
+                    "port_status": "Port operational status (open/closed)"
+                }
+            },
+            "cadence": {
+                "title": "Update frequency",
+                "data": {
+                    "update_interval": "Send frequency"
+                }
+            }
+        }
+    }
+}

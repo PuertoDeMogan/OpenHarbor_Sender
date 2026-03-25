@@ -1,0 +1,91 @@
+{
+    "config": {
+        "step": {
+            "user": {
+                "title": "Credenciales del puerto",
+                "data": {
+                    "port_id": "Selecciona el puerto",
+                    "github_token": "Token de GitHub"
+                },
+                "data_description": {
+                    "port_id": "Selecciona el puerto del que quieres recibir datos",
+                    "github_token": "Token de GitHub con permisos de lectura y escritura sobre portwatch-data"
+                }
+            },
+            "sensor_map": {
+                "title": "Mapeo de sensores — {port_name}",
+                "description": "Asocia cada sensor del puerto con una entidad de tu Home Assistant",
+                "data": {
+                    "air_temperature": "Temperatura del aire",
+                    "humidity": "Humedad",
+                    "wind_speed": "Velocidad del viento",
+                    "wind_direction": "Dirección del viento",
+                    "wave_height": "Altura de las olas",
+                    "water_temperature": "Temperatura del agua",
+                    "berths_available": "Amarres disponibles",
+                    "port_status": "Estado del puerto"
+                },
+                "data_description": {
+                    "air_temperature": "Sensor de temperatura ambiente (°C)",
+                    "humidity": "Sensor de humedad relativa (%)",
+                    "wind_speed": "Sensor de velocidad del viento (km/h)",
+                    "wind_direction": "Sensor de dirección del viento (°)",
+                    "wave_height": "Sensor de altura de olas (m)",
+                    "water_temperature": "Sensor de temperatura del agua (°C)",
+                    "berths_available": "Número de amarres libres",
+                    "port_status": "Estado operativo del puerto (open/closed)"
+                }
+            },
+            "cadence": {
+                "title": "Cadencia de actualización",
+                "data": {
+                    "update_interval": "Frecuencia de envío"
+                }
+            }
+        },
+        "error": {
+            "invalid_token": "Token inválido o sin permisos",
+            "repo_not_found": "Repositorio de datos no encontrado",
+            "token_no_write": "El token no tiene permisos de escritura",
+            "port_not_found": "Puerto no encontrado en el repositorio de datos",
+            "cannot_connect": "No se pudo conectar con GitHub"
+        },
+        "abort": {
+            "already_configured": "Este puerto ya está configurado"
+        }
+    },
+    "options": {
+        "step": {
+            "init": {
+                "title": "Remapeo de sensores — {port_name}",
+                "description": "Reasigna las entidades de Home Assistant a cada sensor del puerto",
+                "data": {
+                    "air_temperature": "Temperatura del aire",
+                    "humidity": "Humedad",
+                    "wind_speed": "Velocidad del viento",
+                    "wind_direction": "Dirección del viento",
+                    "wave_height": "Altura de las olas",
+                    "water_temperature": "Temperatura del agua",
+                    "berths_available": "Amarres disponibles",
+                    "port_status": "Estado del puerto"
+                },
+                "data_description": {
+                    "air_temperature": "Sensor de temperatura ambiente (°C)",
+                    "humidity": "Sensor de humedad relativa (%)",
+                    "wind_speed": "Sensor de velocidad del viento (km/h)",
+                    "wind_direction": "Sensor de dirección del viento (°)",
+                    "wave_height": "Sensor de altura de olas (m)",
+                    "water_temperature": "Sensor de temperatura del agua (°C)",
+                    "berths_available": "Número de amarres libres",
+                    "port_status": "Estado operativo del puerto (open/closed)"
+                }
+            },
+            "cadence": {
+                "title": "Cadencia de actualización",
+                "data": {
+                    "update_interval": "Frecuencia de envío"
+                }
+            }
+        }
+    }
+}
