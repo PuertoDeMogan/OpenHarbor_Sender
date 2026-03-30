@@ -8,6 +8,11 @@ from homeassistant.data_entry_flow import FlowResult
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 import homeassistant.helpers.config_validation as cv
 from homeassistant.helpers import selector
+from homeassistant.helpers.selector import (
+    NumberSelector,
+    NumberSelectorConfig,
+    NumberSelectorMode,
+)
 
 from .const import (
     AVAILABLE_PORTS,
@@ -16,8 +21,9 @@ from .const import (
     CONF_SENSOR_MAP,
     CONF_UPDATE_INTERVAL,
     DEFAULT_UPDATE_INTERVAL,
+    MIN_UPDATE_INTERVAL,
+    MAX_UPDATE_INTERVAL,
     DOMAIN,
-    UPDATE_INTERVAL_OPTIONS,
 )
 from .github_client import GitHubClient
 
@@ -112,7 +118,7 @@ class OpenHarborSenderConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     CONF_PORT_ID: self._port_id,
                     CONF_GITHUB_TOKEN: self._token,
                     CONF_SENSOR_MAP: self._sensor_map,
-                    CONF_UPDATE_INTERVAL: user_input[CONF_UPDATE_INTERVAL],
+                    CONF_UPDATE_INTERVAL: int(user_input[CONF_UPDATE_INTERVAL]),
                 },
             )
 
@@ -122,13 +128,13 @@ class OpenHarborSenderConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 {
                     vol.Required(
                         CONF_UPDATE_INTERVAL, default=DEFAULT_UPDATE_INTERVAL
-                    ): selector.SelectSelector(
-                        selector.SelectSelectorConfig(
-                            options=[
-                                {"value": str(m), "label": f"Cada {m} minutos"}
-                                for m in UPDATE_INTERVAL_OPTIONS
-                            ],
-                            mode=selector.SelectSelectorMode.LIST,
+                    ): NumberSelector(
+                        NumberSelectorConfig(
+                            min=MIN_UPDATE_INTERVAL,
+                            max=MAX_UPDATE_INTERVAL,
+                            step=1,
+                            mode=NumberSelectorMode.BOX,
+                            unit_of_measurement="min",
                         )
                     )
                 }
@@ -189,7 +195,7 @@ class OpenHarborSenderOptionsFlow(config_entries.OptionsFlow):
             return self.async_create_entry(
                 title="",
                 data={
-                    CONF_UPDATE_INTERVAL: user_input[CONF_UPDATE_INTERVAL],
+                    CONF_UPDATE_INTERVAL: int(user_input[CONF_UPDATE_INTERVAL]),
                     CONF_SENSOR_MAP: self._new_sensor_map,
                 },
             )
@@ -207,13 +213,13 @@ class OpenHarborSenderOptionsFlow(config_entries.OptionsFlow):
                             CONF_UPDATE_INTERVAL,
                             data.get(CONF_UPDATE_INTERVAL, DEFAULT_UPDATE_INTERVAL),
                         ),
-                    ): selector.SelectSelector(
-                        selector.SelectSelectorConfig(
-                            options=[
-                                {"value": str(m), "label": f"Cada {m} minutos"}
-                                for m in UPDATE_INTERVAL_OPTIONS
-                            ],
-                            mode=selector.SelectSelectorMode.LIST,
+                    ): NumberSelector(
+                        NumberSelectorConfig(
+                            min=MIN_UPDATE_INTERVAL,
+                            max=MAX_UPDATE_INTERVAL,
+                            step=1,
+                            mode=NumberSelectorMode.BOX,
+                            unit_of_measurement="min",
                         )
                     )
                 }
