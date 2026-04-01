@@ -78,7 +78,6 @@ class OpenHarborSenderCoordinator(DataUpdateCoordinator):
                 "port_id": port_id,
                 "name": current.get("name", port_id),
                 "last_updated": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
-                "submission_endpoint": current.get("submission_endpoint", None),
                 "cameras": current.get("cameras", []),
                 "sensors": sensors_payload,
             }
