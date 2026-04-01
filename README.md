@@ -60,10 +60,22 @@ Para añadir la integración a tu instancia de Home Assistant, usa el botón:
 
 ### Configuración Manual
 1. Ve a **Configuración → Integraciones → Añadir integración**
-3. Busca **Open Harbor Sender**
+2. Busca **Open Harbor Sender**
+
+<img width="563" height="293" alt="image" src="https://github.com/user-attachments/assets/3253fc6e-b8a4-4f2a-a5f4-bbd61da85d5b" />
+
+3. Añade el token de edicion de Github que te lo proporcionara el administrador de @PuertoDeMogan y el puerto a modificar:
+
+<img width="561" height="307" alt="image" src="https://github.com/user-attachments/assets/8b9056eb-be0b-454e-ad5d-9289706b4275" />
+
 
 4. Selecciona los sensores que quieres vincular a los datos en los desplegables.
+<img width="570" height="960" alt="image" src="https://github.com/user-attachments/assets/f838b235-2035-408d-b314-88f8f74a6996" />
+
+
 5. Establece el intervalo de actualización (por defecto: 5 minutos)
+<img width="567" height="221" alt="image" src="https://github.com/user-attachments/assets/dff411f3-169a-41ed-b689-3bc92364b1eb" />
+
 
 6. Haz clic en **Enviar**
 
@@ -72,6 +84,7 @@ Para añadir la integración a tu instancia de Home Assistant, usa el botón:
 ## Sensores
 
 Los sensores vinculados se actualizaran **dinámicamente** según el intervalo y los datos de los sensores seleccionadosdisponibles de cada puerto. El número y tipo de sensores puede variar entre puertos.
+<img width="1048" height="840" alt="image" src="https://github.com/user-attachments/assets/2b890f13-e292-49f9-bd4b-b0a67331c86b" />
 
 
 ---
