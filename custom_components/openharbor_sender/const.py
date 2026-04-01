@@ -15,7 +15,3 @@ CONF_UPDATE_INTERVAL = "update_interval"
 MIN_UPDATE_INTERVAL = 1
 MAX_UPDATE_INTERVAL = 1440
 DEFAULT_UPDATE_INTERVAL = 5
-
-AVAILABLE_PORTS = {
-    "puerto_mogan": "Puerto de Mogán",
-}

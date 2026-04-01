@@ -1,11 +1,12 @@
 from __future__ import annotations
 
+import asyncio
 import logging
 from datetime import datetime, timezone, timedelta
 
 from homeassistant.core import HomeAssistant
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
+from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 
 from .const import (
@@ -36,6 +37,8 @@ class OpenHarborSenderCoordinator(DataUpdateCoordinator):
             )
         )
 
+        self.write_lock = asyncio.Lock()
+
         super().__init__(
             hass,
             _LOGGER,
@@ -47,33 +50,42 @@ class OpenHarborSenderCoordinator(DataUpdateCoordinator):
         port_id = self._entry.data[CONF_PORT_ID]
         sensor_map: dict = self._entry.data[CONF_SENSOR_MAP]
 
-        try:
-            current = await self._client.get_port_data(port_id)
-        except Exception:
-            current = {}
+        async with self.write_lock:
+            try:
+                current = await self._client.get_port_data(port_id)
+            except Exception as err:
+                raise UpdateFailed(f"Cannot fetch port data for {port_id}: {err}") from err
 
-        sensors_payload = current.get("sensors", {})
+            sensors_payload = current.get("sensors", {})
+            changed = False
 
-        for sensor_key, entity_id in sensor_map.items():
-            if sensor_key not in sensors_payload:
-                continue
-            state = self.hass.states.get(entity_id)
-            if state is None or state.state in ("unknown", "unavailable"):
-                continue
-            sensors_payload[sensor_key]["value"] = _parse_state(state.state)
+            for sensor_key, entity_id in sensor_map.items():
+                if sensor_key not in sensors_payload:
+                    continue
+                state = self.hass.states.get(entity_id)
+                if state is None or state.state in ("unknown", "unavailable"):
+                    continue
+                new_value = _parse_state(state.state)
+                if sensors_payload[sensor_key].get("value") != new_value:
+                    sensors_payload[sensor_key]["value"] = new_value
+                    changed = True
 
-        payload = {
-            "port_id": port_id,
-            "name": current.get("name", port_id),
-            "last_updated": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
-            "submission_endpoint": current.get("submission_endpoint", None),
-            "cameras": current.get("cameras", []),
-            "sensors": sensors_payload,
-        }
+            if not changed:
+                _LOGGER.debug("openharbor_sender: %s no changes, skipping PUT", port_id)
+                return current
 
-        await self._client.put_port_data(port_id, payload)
-        _LOGGER.debug("openharbor_sender: %s updated on GitHub", port_id)
-        return payload
+            payload = {
+                "port_id": port_id,
+                "name": current.get("name", port_id),
+                "last_updated": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+                "submission_endpoint": current.get("submission_endpoint", None),
+                "cameras": current.get("cameras", []),
+                "sensors": sensors_payload,
+            }
+
+            await self._client.put_port_data(port_id, payload)
+            _LOGGER.debug("openharbor_sender: %s updated on GitHub", port_id)
+            return payload
 
 
 def _parse_state(value: str) -> float | str:

@@ -1,5 +1,9 @@
 from __future__ import annotations
 
+import asyncio
+import logging
+
+import aiohttp
 import voluptuous as vol
 
 from homeassistant import config_entries
@@ -15,17 +19,54 @@ from homeassistant.helpers.selector import (
 )
 
 from .const import (
-    AVAILABLE_PORTS,
     CONF_GITHUB_TOKEN,
     CONF_PORT_ID,
     CONF_SENSOR_MAP,
     CONF_UPDATE_INTERVAL,
+    DATA_API_BASE,
     DEFAULT_UPDATE_INTERVAL,
     MIN_UPDATE_INTERVAL,
     MAX_UPDATE_INTERVAL,
     DOMAIN,
 )
 from .github_client import GitHubClient
+
+_LOGGER = logging.getLogger(__name__)
+
+
+async def _fetch_available_ports(session: aiohttp.ClientSession) -> dict[str, str]:
+    headers = {"Accept": "application/vnd.github+json"}
+
+    async with session.get(
+        DATA_API_BASE,
+        headers=headers,
+        timeout=aiohttp.ClientTimeout(total=10),
+    ) as resp:
+        resp.raise_for_status()
+        files: list[dict] = await resp.json(content_type=None)
+
+    port_files = [
+        f for f in files
+        if f.get("type") == "file" and f["name"].endswith(".json")
+    ]
+
+    async def _fetch_port_name(file_entry: dict) -> tuple[str, str]:
+        port_id = file_entry["name"].removesuffix(".json")
+        try:
+            async with session.get(
+                file_entry["download_url"],
+                timeout=aiohttp.ClientTimeout(total=10),
+            ) as r:
+                r.raise_for_status()
+                data = await r.json(content_type=None)
+                name = data.get("name", port_id.replace("_", " ").title())
+        except Exception:
+            _LOGGER.warning("Could not fetch name for port %s, using fallback", port_id)
+            name = port_id.replace("_", " ").title()
+        return port_id, name
+
+    results = await asyncio.gather(*[_fetch_port_name(f) for f in port_files])
+    return dict(results)
 
 
 class OpenHarborSenderConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
@@ -36,13 +77,26 @@ class OpenHarborSenderConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         self._token: str = ""
         self._port_data: dict = {}
         self._sensor_map: dict = {}
+        self._available_ports: dict[str, str] = {}
 
     async def async_step_user(
         self, user_input: dict | None = None
     ) -> FlowResult:
         errors: dict[str, str] = {}
 
-        if user_input is not None:
+        if not self._available_ports:
+            try:
+                session = async_get_clientsession(self.hass)
+                self._available_ports = await _fetch_available_ports(session)
+            except aiohttp.ClientResponseError:
+                errors["base"] = "cannot_connect"
+            except aiohttp.ClientError:
+                errors["base"] = "cannot_connect"
+            except Exception:
+                _LOGGER.exception("Unexpected error fetching port list")
+                errors["base"] = "unknown"
+
+        if not errors and user_input is not None:
             self._port_id = user_input[CONF_PORT_ID]
             self._token = user_input[CONF_GITHUB_TOKEN].strip()
 
@@ -69,7 +123,7 @@ class OpenHarborSenderConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                         selector.SelectSelectorConfig(
                             options=[
                                 {"value": pid, "label": name}
-                                for pid, name in AVAILABLE_PORTS.items()
+                                for pid, name in self._available_ports.items()
                             ],
                             mode=selector.SelectSelectorMode.DROPDOWN,
                         )

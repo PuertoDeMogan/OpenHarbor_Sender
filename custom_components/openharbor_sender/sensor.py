@@ -28,7 +28,8 @@ async def async_setup_entry(
     entry: ConfigEntry,
     async_add_entities: AddEntitiesCallback,
 ) -> None:
-    port_data = hass.data[DOMAIN][entry.entry_id].get("last_port_data", {})
+    coordinator = hass.data[DOMAIN][entry.entry_id]["sender"]
+    port_data = coordinator.data or {}
     sensors = port_data.get("sensors", {})
 
     async_add_entities(

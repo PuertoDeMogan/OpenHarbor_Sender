@@ -26,24 +26,24 @@ class GitHubClient:
         }
 
     async def validate_token(self) -> None:
-        url = API_BASE
+        repo_url = f"https://api.github.com/repos/{DATA_REPO_OWNER}/{DATA_REPO_NAME}"
         try:
             async with self._session.get(
-                url,
+                repo_url,
                 headers=self._headers,
                 timeout=aiohttp.ClientTimeout(total=10),
             ) as resp:
-                body = await resp.text()
                 if resp.status == 401:
                     _LOGGER.error("validate_token: token inválido (401)")
                     raise ValueError("invalid_token")
-                if resp.status == 403:
-                    _LOGGER.error("validate_token: sin permisos de escritura (403)")                    
-                    raise ValueError("token_no_write")
                 if resp.status == 404:
                     _LOGGER.error("validate_token: repo no encontrado (404)")
                     raise ValueError("repo_not_found")
                 resp.raise_for_status()
+                data = await resp.json()
+                if not data.get("permissions", {}).get("push", False):
+                    _LOGGER.error("validate_token: el token no tiene permisos de escritura")
+                    raise ValueError("token_no_write")
         except aiohttp.ClientConnectorError as err:
             raise ValueError("cannot_connect") from err
 
@@ -105,21 +105,3 @@ class GitHubClient:
                 return data.get("sha")
         except aiohttp.ClientConnectorError:
             raise
-
-    async def get_all_ports(self) -> dict[str, str]:
-        url = API_BASE
-        async with self._session.get(url, headers=self._headers) as resp:
-            if resp.status != 200:
-                raise ValueError("repo_not_found")
-            items = await resp.json()
-
-        ports = {}
-        for item in items:
-            if item["type"] == "dir":
-                port_id = item["name"]
-                try:
-                    port_data = await self.get_port_data(port_id)
-                    ports[port_id] = port_data.get("name", port_id)
-                except Exception:
-                    ports[port_id] = port_id
-        return ports
