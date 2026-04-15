@@ -66,7 +66,7 @@ class OpenHarborSenderCoordinator(DataUpdateCoordinator):
                 if sensor_key not in sensors_payload:
                     continue
                 state = self.hass.states.get(entity_id)
-                if state is None or state.state in ("unknown", "unavailable"):
+                if state is None or state.state in ("unknown", "unavailable", "None"):
                     continue
                 new_value = _parse_state(state.state)
                 if sensors_payload[sensor_key].get("value") != new_value:
