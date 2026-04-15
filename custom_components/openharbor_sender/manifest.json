@@ -1,7 +1,7 @@
 {
     "domain": "openharbor_sender",
     "name": "Open Harbor Sender",
-    "version": "0.0.1",
+    "version": "0.0.2",
     "config_flow": true,
     "documentation": "https://github.com/PuertoDeMogan/OpenHarbor_Sender",
     "issue_tracker": "https://github.com/PuertoDeMogan/OpenHarbor_Sender/issues",
