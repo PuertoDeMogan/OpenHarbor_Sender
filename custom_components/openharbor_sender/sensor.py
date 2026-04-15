@@ -32,18 +32,22 @@ async def async_setup_entry(
     port_data = coordinator.data or {}
     sensors = port_data.get("sensors", {})
 
+    sensor_map = (
+        entry.options.get(CONF_SENSOR_MAP)
+        or entry.data.get(CONF_SENSOR_MAP, {})
+    )
     async_add_entities(
         OpenHarborSenderMirrorSensor(
             hass=hass,
             entry=entry,
             port_id=entry.data[CONF_PORT_ID],
             sensor_key=key,
-            source_entity_id=entry.data[CONF_SENSOR_MAP][key],
+            source_entity_id=sensor_map[key],
             unit=meta.get("unit"),
             icon=meta.get("icon", "mdi:gauge"),
         )
         for key, meta in sensors.items()
-        if not meta.get("writable", False)
+        if not meta.get("writable", False) and key in sensor_map
     )
 
 
@@ -84,11 +88,13 @@ class OpenHarborSenderMirrorSensor(SensorEntity):
     @property
     def native_value(self):
         state = self.hass.states.get(self._source_entity_id)
-        if state is None or state.state in ("unknown", "unavailable"):
+        if state is None or state.state in ("unknown", "unavailable", "None"):
             return None
         try:
             return float(state.state)
         except (ValueError, TypeError):
+            if self._attr_native_unit_of_measurement:
+                return None
             return state.state
 
     @property

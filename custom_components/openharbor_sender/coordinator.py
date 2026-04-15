@@ -48,7 +48,10 @@ class OpenHarborSenderCoordinator(DataUpdateCoordinator):
 
     async def _async_update_data(self) -> dict:
         port_id = self._entry.data[CONF_PORT_ID]
-        sensor_map: dict = self._entry.data[CONF_SENSOR_MAP]
+        sensor_map: dict = (
+            self._entry.options.get(CONF_SENSOR_MAP)
+            or self._entry.data.get(CONF_SENSOR_MAP, {})
+        )
 
         async with self.write_lock:
             try:
